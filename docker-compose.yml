@@ -1,0 +1,91 @@
+version: "3.9"  # Версия docker-compose
+
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+
+networks:
+  iems-network:
+    driver: bridge  
+  cassioli-network:
+    driver: bridge
+  keycloak-network:
+    driver: bridge
+  
+services: 
+      
+  rabbitmq:
+    image: rabbitmq:3.12.7-management    
+    hostname: rabbitmq
+    restart: unless-stopped
+    environment:      
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
+    volumes:
+      - ./_data/rabbitmq:/var/lib/rabbitmq
+      - ./_data/rabbitmq/log:/var/log/rabbitmq       
+      - ./_data/rabbitmq/conf/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./_data/rabbitmq/conf/definitions.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      - 15672:15672      
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s    
+    logging: *logging    
+    networks:
+      - mes-network
+  
+  notifier-db:
+    image: postgres:latest
+    restart: unless-stopped 
+    ports:
+      - 5405:5432                   
+    volumes: 
+      - ./_data/notifier:/var/lib/postgresql/data
+    hostname: mes 
+    environment:   
+      POSTGRES_USER: notifier
+      POSTGRES_PASSWORD: 4523B30037A843C4B7E29820C47C92E5
+      POSTGRES_DB: "Notifier"    
+    healthcheck:  
+      test: ["CMD-SHELL", "pg_isready -d Notifier -U notifier"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging: *logging
+    networks:
+      - notifier-network
+
+  notifier-service:
+    build:
+      context: ./_publish/notifier
+      dockerfile: Dockerfile 
+    image: notifierapi    
+    restart: unless-stopped
+    ports:
+      - "3026:80"      
+    environment:                          
+      ASPNETCORE_ENVIRONMENT: Developer
+      POSTGRES_HOST: notifier-db:5432       
+      RABBITMQ_HOST: rabbitmq:5672                                                                                                                                                                          
+    depends_on: 
+      notifier-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:80/health || exit"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging: *logging
+    networks:
+      - mes-network
+      - notifier-network
+

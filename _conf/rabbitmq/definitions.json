@@ -1,0 +1,86 @@
+{
+    "bindings": [],
+    "exchanges": [],
+    "global_parameters": [],
+    "parameters": [],
+    "permissions": [
+        {
+            "configure": ".*",
+            "read": ".*",
+            "user": "guest",
+            "vhost": "/",
+            "write": ".*"
+        },
+        {
+            "configure": ".*",
+            "read": ".*",
+            "user": "admin",
+            "vhost": "mes",
+            "write": ".*"
+        },       
+        {
+            "configure": ".*",
+            "read": ".*",
+            "user": "admin",
+            "vhost": "/",
+            "write": ".*"
+        },
+        {
+            "configure": ".*",
+            "read": ".*",
+            "user": "notifier",
+            "vhost": "mes",
+            "write": ".*"
+        }
+    ],
+    "policies": [],
+    "queues": [],
+    "rabbit_version": "3.12.7",
+    "rabbitmq_version": "3.12.7",
+    "topic_permissions": [],
+    "users": [        
+        {
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "limits": {},
+            "name": "admin",
+            "password_hash": "OsVYu+4adl20+TOgdK9To2MpGSYJyXWGbYwYm28PNKZDKdFu",
+            "tags": [
+                "administrator"
+            ]
+        },       
+        {
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "limits": {},
+            "name": "notifier",
+            "password_hash": "10TZmJWDS2Qajqtk+B7JdbYCeY7owvYDN4Zm8draPhezuarT",
+            "tags": []
+        },
+        {
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "limits": {},
+            "name": "guest",
+            "password_hash": "H/0gaqo2wuM3DYmXInTWG/3+uy/rqKOQGJKu124TS3OveTag",
+            "tags": [
+                "administrator"
+            ]
+        }        
+    ],
+    "vhosts": [
+        {
+            "limits": [],
+            "metadata": {
+                "description": "Default virtual host",
+                "tags": []
+            },
+            "name": "/"
+        },
+        {
+            "limits": [],
+            "metadata": {
+                "description": "",
+                "tags": []
+            },
+            "name": "mes"
+        }
+    ]
+}
